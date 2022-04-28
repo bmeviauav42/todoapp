@@ -1,6 +1,9 @@
 {
-	"name": "todoapp",
-	"dockerComposeFile": "docker-compose.yml",
+	"name": "todoapp-todos",
+	"dockerComposeFile": [
+		"../../docker-compose.yml", // In the src folder; contains every service
+		"docker-compose.yml", // Overrides the content of the previous one with the dev environemnt for one container
+	],
 	"service": "todos", // This is the service in the compose wich we can debug; all others are built and started in non-debug mode
 	"postCreateCommand": "sudo chown vscode -R /workspace/src/ && dotnet restore src/Todos/Todos.sln", // chown is a workaround for "mixed" debugging inside and outside devcontainer, which might leave files around
 	"workspaceFolder": "/workspace",

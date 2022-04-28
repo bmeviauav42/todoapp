@@ -1,0 +1,13 @@
+{
+	"name": "todoapp-users",
+	"dockerComposeFile": [
+		"../../docker-compose.yml", // In the src folder; contains every service
+		"docker-compose.yml", // Overrides the content of the previous one with the dev environemnt for one container
+	],
+	"service": "users", // This is the service in the compose wich we can debug; all others are built and started in non-debug mode
+	"postCreateCommand": "pip install --trusted-host pypi.python.org -r src/Users/requirements.txt",
+	"workspaceFolder": "/workspace",
+	"extensions": [
+		"ms-python.python"
+	],
+}

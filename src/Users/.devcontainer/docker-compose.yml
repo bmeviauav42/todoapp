@@ -1,0 +1,15 @@
+version: "3"
+
+services:
+  # Same key exists in the other compose file; this overwrites only the items specified below
+  users:
+    build:
+      context: ../src # Relative to the path of the other compose file
+      dockerfile: Users/Dockerfile.devcontainer # The Dockerfile to build; path is relative to the context
+    volumes:
+      - ..:/workspace:cached # Source files, accessed by the devcontainer
+    command: sleep infinity  # Make sure container does not exit, instead, wait for debugger to connect
+    environment: # Configuration of the microservice in debug mode
+      - TODOAPP_IsDevelopment=1
+      - TODOAPP_MongoUrl=mongodb://mongodb:27017
+      - TODOAPP_RedisUrl=redis:6379

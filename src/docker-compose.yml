@@ -4,14 +4,15 @@ services:
   apigateway:
     image: traefik:v2.6.3
     ports:
-      - "5080:80"
+      - "5080:80" # Port of the API Gateway, which will be the port behind which the system will be published
+      - "5088:8080" # Dashboard of Traefik for troubleshooting
     command:
       - "--api.insecure=true"
       - "--api.dashboard=true"
       - "--providers.docker=true"
       - "--providers.docker.exposedbydefault=false"
     volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
+      - /var/run/docker.sock:/var/run/docker.sock # So that Traefik can listen to the Docker events
     networks:
       - todoapp-network
 
@@ -23,10 +24,12 @@ services:
     networks:
       - todoapp-network
     labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.todos.rule=PathPrefix(`/api/todos`)"
-      - "traefik.http.middlewares.todos-auth.forwardauth.address=http://users/api/auth"
-      - "traefik.http.routers.todos.middlewares=todos-auth@docker"
+      - "traefik.enable=true" # Enable publishing this service by Traefik
+      - "traefik.http.routers.todos.rule=PathPrefix(`/api/todos`)" # Routing rule
+      - "traefik.http.middlewares.todos-auth.forwardauth.address=http://users/api/auth" # Forward authentication middleware definition
+      - "traefik.http.routers.todos.middlewares=todos-auth@docker" # Use the auth middleware in the /api/users route
+    ports:
+      - "5081:80" # Each microservice gets its own port for debugging
 
   web:
     image: "${REGISTRY_URL:-todoapp}/web:${IMAGE_TAG:-latest}"
@@ -37,7 +40,9 @@ services:
       - todoapp-network
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.web.rule=PathPrefix(`/`)"
+      - "traefik.http.routers.web.rule=PathPrefix(`/`)" # Routing rule
+    ports:
+      - "5082:80"
 
   users:
     image: "${REGISTRY_URL:-todoapp}/users:${IMAGE_TAG:-latest}"
@@ -48,10 +53,12 @@ services:
       - todoapp-network
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.auth.rule=PathPrefix(`/api/auth`)"
-      - "traefik.http.routers.users.rule=PathPrefix(`/api/users`)"
-      - "traefik.http.middlewares.users-auth.forwardauth.address=http://users/api/auth"
-      - "traefik.http.routers.users.middlewares=users-auth@docker"
+      - "traefik.http.routers.auth.rule=PathPrefix(`/api/auth`)" # Two routing rules are defined: this one, for the authentication, can be called by anyone
+      - "traefik.http.routers.users.rule=PathPrefix(`/api/users`)" # This other rule works on a different url scheme, and requires authentication
+      - "traefik.http.middlewares.users-auth.forwardauth.address=http://users/api/auth" # Forward authentication middleware definition
+      - "traefik.http.routers.users.middlewares=users-auth@docker" # Use the auth middleware in the /api/users route
+    ports:
+      - "5083:80"
 
   mongodb:
     image: mongo:5.0.8
@@ -59,6 +66,8 @@ services:
       - todoapp-network
     volumes:
       - todoapp-mongo-data:/data/db
+    ports:
+      - "27017:27017" # Port to access data for debugging
 
   redis:
     image: redis:6.2.7-alpine
@@ -76,6 +85,8 @@ services:
       - todoapp-elastic-data:/usr/share/elasticsearch/data
     networks:
       - todoapp-network
+    ports:
+      - "9200:9200" # Port to access data for debugging
 
 volumes:
   todoapp-mongo-data:

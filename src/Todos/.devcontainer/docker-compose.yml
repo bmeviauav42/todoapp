@@ -1,0 +1,15 @@
+version: "3"
+
+services:
+  # Same key exists in the other compose file; this overwrites only the items specified below
+  todos:
+    build:
+      context: ../src # Relative to the path of the other compose file
+      dockerfile: Todos/Todos.Api/Dockerfile.devcontainer # The Dockerfile to build; path is relative to the context
+    volumes:
+      - ..:/workspace:cached # Source files, accessed by the devcontainer
+    command: /bin/sh -c "while sleep 1000; do :; done"  # Make sure container does not exit, instead, wait for debugger to connect
+    environment: # Configuration of the microservice in debug mode
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_ElasticsearchUrl=http://elasticsearch:9200
+      - ASPNETCORE_RedisUrl=redis:6379

@@ -5,11 +5,18 @@
             "name": "Debug todos",
             "type": "coreclr",
             "request": "launch",
-            "preLaunchTask": "build",
+            "preLaunchTask": "todos-build",
             "program": "${workspaceFolder}/src/Todos/Todos.Api/bin/Debug/net6.0/Todos.Api.dll",
             "args": [],
             "cwd": "${workspaceFolder}/src/Todos/Todos.Api",
             "stopAtEntry": false,
+        },
+        {
+            "name": "Debug users",
+            "type": "python",
+            "request": "launch",
+            "program": "${workspaceFolder}/src/Users/app.py",
+            "console": "integratedTerminal"
         }
     ]
 }

@@ -41,7 +41,12 @@ A rendszer az alábbi mikroszolgáltatásokból épül fel:
 
 ### Visual Studio Code Remote Container
 
-VS Code-ban F1 menüben _Remote Containers: Open Folder in Container_ és a repository gyökerét megnyitni. F5-tel indítva a _todos_ nevű .NET komponens debuggolható, a többi konténer folyamatosan fut.
+VS Code-ban az F1 menüben _Remote Containers: Open Folder in Container_, majd az alábbi mappák egyikét kell megnyitni, attól függően, hogy melyik szolgáltatást akarjuk debuggolni:
+
+- `src/Todos` a _Todos_ nevű .NET alkalmazáshoz,
+- `src/Users` a _Users_ nevű Python alkalmazáshoz.
+
+Mindkettőben a _Run and Debug_ panel alól elindítható a megfelelő debug profil, aminek hatására a .NET vagy a Python alkalmazás debug módban indul, míg a a többi konténer folyamatosan fut.
 
 ### Konzolból
 
