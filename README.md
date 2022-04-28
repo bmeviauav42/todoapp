@@ -8,7 +8,8 @@ A labor célja bemutatni a mikroszolgáltatásokra épülő rendszerek esetében
 
 Az alkalmazás teljes egészében platformfüggetlen. A kényelmes fejlesztéshez azonban a forráskód Microsoft Visual Studio-t feltételez.
 
-- Microsoft Visual Studio 2017/2019/2022
+- Visual Studio Code
+- Visual Studio Code [Remote - Containers](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers) extension
 - Docker WSL2 támogatással
 - Postman
 
@@ -38,32 +39,32 @@ A rendszer az alábbi mikroszolgáltatásokból épül fel:
 
 ## Futtatás
 
-#### Microsoft Visual Studio-ból
+### Visual Studio Code Remote Container
 
-Az `src/todoapp.sln` solution fájlt megnyitva a `docker-compose` nevű projektet _startup project_-nek beállítva F5-tel indítható. A forráskódban történő bármely változtatás után (akár C# kód, akár más kód) ugyanígy fordítás és debug módú indítás szükséges.
+VS Code-ban F1 menüben _Remote Containers: Open Folder in Container_ és a repository gyökerét megnyitni. F5-tel indítva a _todos_ nevű .NET komponens debuggolható, a többi konténer folyamatosan fut.
 
-#### Konzolból
+### Konzolból
 
-Az `src/docker` könyvtárból az alábbi parancsokkal fordítható és indítható az alkalmazás:
+Az `src` könyvtárban az alábbi parancsokkal fordítható és indítható az alkalmazás:
 
 ```bash
 docker-compose build
 docker-compose up
 ```
 
-#### URL-ek
+### URL-ek
 
 Az egyes szolgáltatások az alábbi URL-eken érhetően el:
 
 - Weboldal
   - <http://localhost:5080>
-  - Visual Studio-ból futtatva közvetlenül <http://localhost:5082>
+  - Visual Studio Code-ban futtatva közvetlenül <http://localhost:5082>
 - Todos REST API
   - <http://localhost:5080/api/todos>
-  - Visual Studio-ból futtatva közvetlenül <http://localhost:5081/api/todos>
+  - Visual Studio Code-ban futtatva közvetlenül <http://localhost:5081/api/todos>
 - Users REST API
   - <http://localhost:5080/api/users>
-  - Visual Studio-ból futtatva közvetlenül <http://localhost:5083/api/users>
+  - Visual Studio Code-ban futtatva közvetlenül <http://localhost:5083/api/users>
 - Traefik Dashboard: <http://localhost:5088>
 - Mongodb: <mongodb://localhost:27017>
 - Elasticsearch: <http://localhost:9200>

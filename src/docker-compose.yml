@@ -1,0 +1,88 @@
+version: "3"
+
+services:
+  apigateway:
+    image: traefik:v2.2.1
+    ports:
+      - "5080:80"
+    command:
+      - "--api.insecure=true"
+      - "--api.dashboard=true"
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    networks:
+      - todoapp-network
+
+  todos:
+    image: "${REGISTRY_URL:-todoapp}/todos:${IMAGE_TAG:-latest}"
+    build:
+      context: .
+      dockerfile: Todos/Todos.Api/Dockerfile
+    networks:
+      - todoapp-network
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.todos.rule=PathPrefix(`/api/todos`)"
+      - "traefik.http.middlewares.todos-auth.forwardauth.address=http://users/api/auth"
+      - "traefik.http.routers.todos.middlewares=todos-auth@docker"
+
+  web:
+    image: "${REGISTRY_URL:-todoapp}/web:${IMAGE_TAG:-latest}"
+    build:
+      context: .
+      dockerfile: Web/Dockerfile
+    networks:
+      - todoapp-network
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.web.rule=PathPrefix(`/`)"
+
+  users:
+    image: "${REGISTRY_URL:-todoapp}/users:${IMAGE_TAG:-latest}"
+    build:
+      context: .
+      dockerfile: Users/Dockerfile
+    networks:
+      - todoapp-network
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.auth.rule=PathPrefix(`/api/auth`)"
+      - "traefik.http.routers.users.rule=PathPrefix(`/api/users`)"
+      - "traefik.http.middlewares.users-auth.forwardauth.address=http://users/api/auth"
+      - "traefik.http.routers.users.middlewares=users-auth@docker"
+
+  mongodb:
+    image: mongo:4.2.8
+    networks:
+      - todoapp-network
+    volumes:
+      - todoapp-mongo-data:/data/db
+
+  redis:
+    image: redis:6.0.5-alpine
+    networks:
+      - todoapp-network
+
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch-oss:7.8.0
+    environment:
+      - cluster.name=elasticsearch
+      - node.name=elasticsearch
+      - discovery.type=single-node
+      - "ES_JAVA_OPTS=-Xms256m -Xmx256m"
+    volumes:
+      - todoapp-elastic-data:/usr/share/elasticsearch/data
+    networks:
+      - todoapp-network
+
+volumes:
+  todoapp-mongo-data:
+    driver: local
+  todoapp-elastic-data:
+    driver: local
+
+networks:
+  todoapp-network:
+    driver: bridge

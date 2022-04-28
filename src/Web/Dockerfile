@@ -5,11 +5,11 @@ COPY ["Web/nginx.conf", "/etc/nginx/nginx.conf"]
 
 FROM node:14.4.0-alpine as build
 WORKDIR /src
-COPY ["Web/Client", "Client/"]
-WORKDIR /src/Client
+COPY ["Web/", "."]
+WORKDIR /src
 RUN yarn
 RUN yarn build
 
 FROM base AS final
 WORKDIR /app
-COPY --from=build /src/Client/build /app/wwwroot
+COPY --from=build /src/build /app/wwwroot

@@ -1,4 +1,4 @@
-version: "3.7"
+version: "3"
 
 services:
   apigateway:
@@ -12,15 +12,17 @@ services:
       - "--providers.docker=true"
       - "--providers.docker.exposedbydefault=false"
     volumes:
-      - /var/run/docker.sock:/var/run/docker.sock # So that Traefik can listen to the Docker events (see .env file for Windows workaround to make this work)
+      - /var/run/docker.sock:/var/run/docker.sock # So that Traefik can listen to the Docker events
     networks:
       - todoapp-network
 
   todos:
-    image: "${REGISTRY_URL:-todoapp}/todos:${IMAGE_TAG:-latest}"
     build:
-      context: .. # Parent directory, since this file is under the 'Docker' subfolder; every path in every Dockerfile is relative to this
-      dockerfile: Todos/Todos.Api/Dockerfile # The Dockerfile to build; path is relative to the context, which is the solution root
+      context: ../src # Relative to this file
+      dockerfile: Todos/Todos.Api/Dockerfile.devcontainer # The Dockerfile to build; path is relative to the context
+    volumes:
+      - ..:/workspace:cached # Source files, accessed by the devcontainer
+    command: /bin/sh -c "while sleep 1000; do :; done"  # Make sure container does not exit, instead, wait for debugger to connect
     networks: # All microservices are connected by this private Docker network, which also provides DNS
       - todoapp-network
     labels:
@@ -28,23 +30,29 @@ services:
       - "traefik.http.routers.todos.rule=PathPrefix(`/api/todos`)" # Routing rule
       - "traefik.http.middlewares.todos-auth.forwardauth.address=http://users/api/auth" # Forward authentication middleware definition
       - "traefik.http.routers.todos.middlewares=todos-auth@docker" # Use the auth middleware in the /api/users route
+    ports:
+      - "5081:80" # Each microservice gets its own port for debugging
+    environment: # Configuration of microservices
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_ElasticsearchUrl=http://elasticsearch:9200
+      - ASPNETCORE_RedisUrl=redis:6379
 
   web:
-    image: "${REGISTRY_URL:-todoapp}/web:${IMAGE_TAG:-latest}"
     build:
-      context: ..
-      dockerfile: Web/Docker/Dockerfile
+      context: ../src
+      dockerfile: Web/Dockerfile
     networks:
       - todoapp-network
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.web.rule=PathPrefix(`/`)" # Routing rule
+    ports:
+      - "5082:80"
 
   users:
-    image: "${REGISTRY_URL:-todoapp}/users:${IMAGE_TAG:-latest}"
     build:
-      context: ..
-      dockerfile: Users/Docker/Dockerfile
+      context: ../src
+      dockerfile: Users/Dockerfile
     networks:
       - todoapp-network
     labels:
@@ -53,6 +61,12 @@ services:
       - "traefik.http.routers.users.rule=PathPrefix(`/api/users`)" # This other rule works on a different url scheme, and requires authentication
       - "traefik.http.middlewares.users-auth.forwardauth.address=http://users/api/auth" # Forward authentication middleware definition
       - "traefik.http.routers.users.middlewares=users-auth@docker" # Use the auth middleware in the /api/users route
+    ports:
+      - "5083:80"
+    environment:
+      - TODOAPP_MongoUrl=mongodb://mongodb:27017
+      - TODOAPP_RedisUrl=redis
+      - TODOAPP_IsDevelopment=true
 
   mongodb:
     image: mongo:4.2.8
@@ -60,6 +74,8 @@ services:
       - todoapp-network
     volumes:
       - todoapp-mongo-data:/data/db
+    ports:
+      - "27017:27017" # For debugging, makes mongodb available on localhost:27017
 
   redis:
     image: redis:6.0.5-alpine
@@ -77,6 +93,8 @@ services:
       - todoapp-elastic-data:/usr/share/elasticsearch/data
     networks:
       - todoapp-network
+    ports:
+      - "9200:9200" # For debugging, makes Elasticsearch available on localhost:9200
 
 volumes: # The volumes will store the database data; kept even after the containers are deleted
   todoapp-mongo-data:

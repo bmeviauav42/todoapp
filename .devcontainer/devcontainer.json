@@ -1,0 +1,11 @@
+{
+	"name": "todoapp",
+	"dockerComposeFile": "docker-compose.yml",
+	"service": "todos", // This is the service in the compose wich we can debug; all others are built and started in non-debug mode
+	"postCreateCommand": "sudo chown vscode -R /workspace/src/ && dotnet restore src/Todos/Todos.sln", // chown is a workaround for "mixed" debugging inside and outside devcontainer, which might leave files around
+	"workspaceFolder": "/workspace",
+	"remoteUser": "vscode",
+	"extensions": [
+		"ms-dotnettools.csharp"
+	],
+}

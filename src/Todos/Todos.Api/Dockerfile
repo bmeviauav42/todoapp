@@ -5,7 +5,9 @@ EXPOSE 443
 
 FROM mcr.microsoft.com/dotnet/core/sdk:3.1.301 AS build
 WORKDIR /src
+COPY ["Todos/Todos.Dal/Todos.Dal.csproj", "Todos/Todos.Dal/"]
 COPY ["Todos/Todos.Api/Todos.Api.csproj", "Todos/Todos.Api/"]
+RUN dotnet restore "Todos/Todos.Dal/Todos.Dal.csproj"
 RUN dotnet restore "Todos/Todos.Api/Todos.Api.csproj"
 COPY . .
 WORKDIR "/src/Todos/Todos.Api"

@@ -4,8 +4,8 @@ EXPOSE 80
 
 # Copy dependencies file and install dependencies first
 # Faster build if the dependencies do not change (only the source code), thanks to Docker build caching
-COPY ["Users/src/requirements.txt", "."]
+COPY ["Users/requirements.txt", "."]
 RUN pip install --trusted-host pypi.python.org -r requirements.txt
 
-COPY ["Users/src/app.py", "."]
+COPY ["Users/app.py", "."]
 CMD ["python", "app.py"]
