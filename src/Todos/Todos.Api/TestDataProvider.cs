@@ -1,4 +1,5 @@
 ﻿using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
@@ -9,16 +10,34 @@ namespace Todos.Api
     public class TestDataProvider : BackgroundService
     {
         private readonly ITodosRepository todosRepository;
+        private readonly ILogger<TestDataProvider> logger;
 
-        public TestDataProvider(ITodosRepository todosRepository)
+        public TestDataProvider(ITodosRepository todosRepository, ILogger<TestDataProvider> logger)
         {
             this.todosRepository = todosRepository;
+            this.logger = logger;
         }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
-            foreach (var testData in getTestData())
-                await ensureTestDataExist(testData);
+            var retry = 10;
+            while (--retry > 0)
+            {
+                try
+                {
+                    foreach (var testData in getTestData())
+                        await ensureTestDataExist(testData);
+
+                    logger.LogInformation("Seed data added.");
+                    return;
+                }
+                catch (Elasticsearch.Net.ElasticsearchClientException)
+                {
+                    await Task.Delay(System.TimeSpan.FromSeconds(15));
+                }
+            }
+
+            logger.LogError("Failed to add seed data.");
         }
 
         private async Task ensureTestDataExist(TodoItem itemToInsert)

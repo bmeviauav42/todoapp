@@ -1,9 +1,10 @@
-from flask import Flask, jsonify, make_response, request
+import time
+from flask import Flask, jsonify, make_response
 from flask_cors import CORS, cross_origin
 from pymongo import MongoClient
 from redis import Redis
 import os
-import socket
+import threading
 
 # Development and production behavior might vary; decide runtime
 is_development = os.environ.get("TODOAPP_IsDevelopment") is not None
@@ -66,15 +67,27 @@ def get_is_auth():
     # return make_response(jsonify({'error': 'Unauthorized'}), 401)
     return make_response(jsonify({"auth": "ok"}), 200)
 
+# Add sample data
+def seed_db():
+    if is_development:
+        retry = 10
+        while retry > 0:
+            retry = retry - 1
+            try:
+                users_collection = mongo.todoapp.users
+                users_collection.replace_one({"id": 1}, {"id": 1, "name": "Alma"}, True)
+                users_collection.replace_one({"id": 2}, {"id": 2, "name": "Banan"}, True)
+                users_collection.replace_one({"id": 3}, {"id": 3, "name": "Citrom"}, True)
+                return
+            except:
+                time.sleep(5)
+
 
 if __name__ == "__main__":
 
-    # Add sample data
-    if is_development:
-        users_collection = mongo.todoapp.users
-        users_collection.replace_one({"id": 1}, {"id": 1, "name": "Alma"}, True)
-        users_collection.replace_one({"id": 2}, {"id": 2, "name": "Banan"}, True)
-        users_collection.replace_one({"id": 3}, {"id": 3, "name": "Citrom"}, True)
+    seed_db_thread = threading.Thread(target=seed_db, args=())
+    seed_db_thread.daemon = True
+    seed_db_thread.start()
 
     # Start the Flash host
     app.run(host="0.0.0.0", port=80)
