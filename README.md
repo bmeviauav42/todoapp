@@ -6,7 +6,7 @@ A labor célja bemutatni a mikroszolgáltatásokra épülő rendszerek esetében
 
 ## Előkövetelmények
 
-Az alkalmazás teljes egészében platformfüggetlen. A kényelmes fejlesztéshez azonban a forráskód Microsoft Visual Studio-t feltételez.
+Az alkalmazás teljes egészében platformfüggetlen. A fejlesztői környezet Visual Studio Code-ra épül, a szükséges eszközök:
 
 - Visual Studio Code
 - Visual Studio Code [Remote - Containers](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers) extension
