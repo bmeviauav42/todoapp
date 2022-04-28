@@ -12,6 +12,6 @@ jobs:
           fetch-depth: 1
 
       - name: Build docker-compose
-        working-directory: ./src/Docker
+        working-directory: ./src
         run: |
           docker-compose build
