@@ -1,4 +1,4 @@
-FROM python:2.7.16-slim
+FROM python:2.7.18-slim
 WORKDIR /app
 EXPOSE 80
 

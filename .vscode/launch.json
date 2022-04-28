@@ -6,7 +6,7 @@
             "type": "coreclr",
             "request": "launch",
             "preLaunchTask": "build",
-            "program": "${workspaceFolder}/src/Todos/Todos.Api/bin/Debug/netcoreapp3.1/Todos.Api.dll",
+            "program": "${workspaceFolder}/src/Todos/Todos.Api/bin/Debug/net6.0/Todos.Api.dll",
             "args": [],
             "cwd": "${workspaceFolder}/src/Todos/Todos.Api",
             "stopAtEntry": false,
